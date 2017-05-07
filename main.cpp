@@ -42,8 +42,8 @@ struct min_cost_max_flow_finder {
  private:
     // Number of vertices count in the graph.
     int verices_count;
-    // Stores current flow value.
-    int flow;
+    // Stores current cost value.
+    int cost;
     // Represent infinity.
     const int inf = 10000000;
     // All edges in the graph.
@@ -54,8 +54,8 @@ struct min_cost_max_flow_finder {
     std::vector<int> distances;
     // Index of a parent vertex from which you came to the current vertex. 
     std::vector<int> parents;
-    // Try to find greater maximum flow value.
-    // Return delta - difference between previous and new maximum flow value.
+    // Try to find maximum flow value with minimum cost value.
+    // Return delta - difference between previous and new cost value.
     const int try_find_flow();
 };
 
@@ -171,13 +171,13 @@ const int min_cost_max_flow_finder::try_find_flow() {
 }
 
 const int min_cost_max_flow_finder::find_min_cost_max_flow() {
-    int flow_delta = 0;
-    flow = 0;
+    int cost_delta = 0;
+    cost = try_find_flow();
     do {
-        flow_delta = try_find_flow();
-        flow += flow_delta;
-    } while (flow_delta != 0);
-    return flow;
+        cost_delta = try_find_flow();
+        cost += cost_delta;
+    } while (cost_delta != 0);
+    return cost;
 }
 
 const int min_cost_max_flow_finder::get_vertices_count() const {
