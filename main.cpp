@@ -3,64 +3,102 @@
 #include <iostream>
 #include <vector>
 
+// Finds max flow with min cost in the given graph.
 struct min_cost_max_flow_finder {
  public:
+    // Representation of the edge in the graph.
     struct edge {
-        int from, to;
+        // Index of the start vertex.
+        int from;
+        // Index of the end vertex.
+        int to;
+        // Amount, which is required to use the edge.
         int cost;
+        // Current value of the flow in the edge.
         int flow;
+        // Maximum value of the flow in the edge.
         int capacity;
+        // Index of the edge to go back from end to start.
         int back;
     };
-
+    // Initialize with given vertices count in the graph.
     explicit min_cost_max_flow_finder(const int vertices_count);
+    // Add new edge to the graph.
     void add_edge(
         const int from,
         const int to,
         const int capacity,
         const int cost);
+    // Find max flow of min cost in the current graph.
+    // Return the value of the max flow.
     const int find_min_cost_max_flow();
+    // Get current state of the edges.
+    // Return current state of each edge in the graph.
+    // Use to get flow values of the edges you need.
     std::vector<edge*> get_edges_state() const;
+    // Get vertices count in the graph.
     const int get_vertices_count() const;
 
  private:
+    // Number of vertices count in the graph.
     int verices_count;
+    // Stores current flow value.
     int flow;
+    // Represent infinity.
     const int inf = 10000000;
+    // All edges in the graph.
     std::vector<edge*> edges;
+    // State of graph where each vertex contains edges that start from this vertex.
     std::vector< std::vector<edge*> > graph;
+    // Minimum sum of the costs to retrieve a vertex. 
     std::vector<int> distances;
+    // Index of a parent vertex from which you came to the current vertex. 
     std::vector<int> parents;
-
+    // Try to find greater maximum flow value.
+    // Return delta - difference between previous and new maximum flow value.
     const int try_find_flow();
 };
 
+// Solves given problem.
 struct matrix_min_cost_finder {
  public:
+    // Initialize matrix with given data.
     explicit matrix_min_cost_finder(std::vector< std::vector<int> > &matrix);
+    // Choose elements in different rows and columns with minimum sum.
+    // It sets minimum sum to the given integer and sets column indexes for each row,
+    // such that the element in the matrix in given row and column was choosen.
+    // Also, it should be permutation of the columns indexes.
     void find_min_sum(int &min_sum, std::vector<int> &columns);
  private:
+    // Finds min cost max flow in the graph.
     min_cost_max_flow_finder *finder;
+    // Number of rows, number of columns in the matrix. 
     int matrix_size;
+    // Stores values in the matrix.
     std::vector< std::vector<int> > matrix;
 
+    // Initialize finder with a graph.
     void initialize_finder();
 };
 
+// Gets data from input stream.
 void read_data(
     std::istream &_Istr,
     std::vector< std::vector<int> > &matrix_data);
 
+// Puts data to output stream.
 void print_data(
     std::ostream &_Ostr,
     int &sum,
     std::vector<int> &columns);
 
+// Gets answer to the given problem using given data.
 void solve(
     std::vector< std::vector<int> > &matrix_data,
     int &sum,
     std::vector<int> &columns);
 
+// Entry point.
 int main();
 
 min_cost_max_flow_finder::min_cost_max_flow_finder(const int vertices_count) {
