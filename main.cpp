@@ -30,7 +30,7 @@ public:
         const int capacity,
         const int cost);
     // Finds max flow of min cost in the current graph.
-    // Return the value of the max flow.
+    // Return the value of the min cost.
     const int find_min_cost_max_flow();
     // Gets current state of the edges.
     // Returns current state of each edge in the graph.
