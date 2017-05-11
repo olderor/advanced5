@@ -6,6 +6,23 @@
 // Finds max flow with min cost in the given graph.
 struct min_cost_max_flow_finder {
 public:
+    // Initializes with given number of vertices in the graph.
+    explicit min_cost_max_flow_finder(const int vertices_count);
+    // Adds new edge to the graph.
+    void add_edge(
+        const int from,
+        const int to,
+        const int capacity,
+        const int cost);
+    // Finds max flow of min cost in the current graph.
+    // Return the value of the min cost.
+    const int find_min_cost_max_flow();
+    // Gets vertices that have flow through them.
+    std::vector<int> get_flowing_vertices() const;
+    // Gets number of vertices in the graph.
+    const int get_vertices_count() const;
+
+private:
     // Representation of the edge in the graph.
     struct edge {
         // Index of the start vertex.
@@ -21,25 +38,6 @@ public:
         // Index of the edge to go back from end vertex to start vertex.
         int back;
     };
-    // Initializes with given number of vertices in the graph.
-    explicit min_cost_max_flow_finder(const int vertices_count);
-    // Adds new edge to the graph.
-    void add_edge(
-        const int from,
-        const int to,
-        const int capacity,
-        const int cost);
-    // Finds max flow of min cost in the current graph.
-    // Return the value of the min cost.
-    const int find_min_cost_max_flow();
-    // Gets current state of the edges.
-    // Returns current state of each edge in the graph.
-    // Use to get flow values of the edges you need.
-    std::vector<edge*> get_edges_state() const;
-    // Gets number of vertices in the graph.
-    const int get_vertices_count() const;
-
-private:
     // Number of vertices in the graph.
     int verices_count;
     // Stores current cost value.
@@ -184,9 +182,14 @@ const int min_cost_max_flow_finder::get_vertices_count() const {
     return verices_count;
 }
 
-std::vector<min_cost_max_flow_finder::edge*>
-min_cost_max_flow_finder::get_edges_state() const {
-    return edges;
+std::vector<int> min_cost_max_flow_finder::get_flowing_vertices() const {
+    std::vector<int> vertices;
+    for (int i = 0; i < edges.size(); ++i) {
+        if (edges[i]->flow > 0) {
+            vertices.push_back(edges[i]->to);
+        }
+    }
+    return vertices;
 }
 
 matrix_min_cost_finder::matrix_min_cost_finder(
@@ -212,13 +215,13 @@ void matrix_min_cost_finder::find_min_sum(
     std::vector<int> &columns) {
     initialize_finder();
     min_sum = finder->find_min_cost_max_flow();
-    std::vector<min_cost_max_flow_finder::edge*> edges =
-        finder->get_edges_state();
+    std::vector<int> vertices =
+        finder->get_flowing_vertices();
     columns.clear();
-    for (int i = 0; i < edges.size(); ++i) {
-        if (edges[i]->flow > 0 && edges[i]->from != 0 &&
-            edges[i]->to != finder->get_vertices_count() - 1) {
-            columns.push_back(edges[i]->to - matrix_size);
+    for (int i = 0; i < vertices.size(); ++i) {
+        if (vertices[i] != finder->get_vertices_count() - 1 && 
+            vertices[i] - matrix_size > 0) {
+            columns.push_back(vertices[i] - matrix_size);
         }
     }
 }
