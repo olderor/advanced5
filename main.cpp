@@ -9,6 +9,15 @@ const int INTEGER_INFINITY = 10000000;
 // Solves given problem.
 struct matrix_network {
  public:
+     // Solution to the problem.
+     struct result {
+         // Minimum sum of the elements.
+         int min_sum;
+         
+         // Permutation of the columns indexes.
+         std::vector<int> columns;
+     };
+
     // Initializes matrix with given data.
     explicit matrix_network(std::vector< std::vector<int> > &matrix);
 
@@ -17,7 +26,7 @@ struct matrix_network {
     // and sets column indexes for each row,
     // such that the element in the matrix in given row and column was choosen.
     // Also, it will be permutation of the columns indexes.
-    void find_min_sum(int &min_sum, std::vector<int> &columns);
+    const result find_min_sum();
 
  private:
     // Representation of the edge in the graph.
@@ -94,14 +103,11 @@ void read_data(
 // Puts data to output stream.
 void print_data(
     std::ostream &_Ostr,
-    int &sum,
-    std::vector<int> &columns);
+    const matrix_network::result res);
 
 // Gets answer to the given problem using given data.
-void solve(
-    std::vector< std::vector<int> > &matrix_data,
-    int &sum,
-    std::vector<int> &columns);
+const matrix_network::result solve(
+    std::vector< std::vector<int> > &matrix_data);
 
 // Entry point.
 int main();
@@ -112,8 +118,8 @@ void matrix_network::add_edge(
     const int capacity,
     const int cost) {
 
-    edge first = edge(from, to, cost, capacity, edges.size() + 1);
-    edge second = edge(to, from, -cost, 0, edges.size());
+    const edge first = edge(from, to, cost, capacity, edges.size() + 1);
+    const edge second = edge(to, from, -cost, 0, edges.size());
 
     edges.push_back(first);
     edges.push_back(second);
@@ -188,19 +194,19 @@ void matrix_network::initialize_matrix_network() {
     }
 }
 
-void matrix_network::find_min_sum(
-    int &min_sum,
-    std::vector<int> &columns) {
-
+const matrix_network::result matrix_network::find_min_sum() {
     initialize_matrix_network();
-    min_sum = find_min_cost_max_flow();
-    columns.clear();
+    matrix_network::result res = matrix_network::result();
+    res.min_sum = find_min_cost_max_flow();
+
     for (int i = 0; i < edges.size(); ++i) {
         if (edges[i].flow > 0 && edges[i].from != 0 &&
             edges[i].to != vertices_count - 1) {
-            columns.push_back(edges[i].to - matrix_size);
+            res.columns.push_back(edges[i].to - matrix_size);
         }
     }
+
+    return res;
 }
 
 void read_data(
@@ -220,23 +226,20 @@ void read_data(
 
 void print_data(
     std::ostream &_Ostr,
-    int &sum,
-    std::vector<int> &columns) {
+    const matrix_network::result res) {
 
-    _Ostr << sum << '\n';
-    for (int i = 0; i < columns.size(); ++i) {
-        _Ostr << columns[i] << ' ';
+    _Ostr << res.min_sum << '\n';
+    for (int i = 0; i < res.columns.size(); ++i) {
+        _Ostr << res.columns[i] << ' ';
     }
     _Ostr << '\n';
 }
 
-void solve(
-    std::vector< std::vector<int> > &matrix_data,
-    int &sum,
-    std::vector<int> &columns) {
+const matrix_network::result solve(
+    std::vector< std::vector<int> > &matrix_data) {
 
     matrix_network finder = matrix_network(matrix_data);
-    finder.find_min_sum(sum, columns);
+    return finder.find_min_sum();
 }
 
 int main() {
@@ -244,11 +247,9 @@ int main() {
 
     read_data(std::cin, matrix_data);
 
-    int sum;
-    std::vector<int> columns;
-    solve(matrix_data, sum, columns);
+    const matrix_network::result res = solve(matrix_data);
 
-    print_data(std::cout, sum, columns);
+    print_data(std::cout, res);
 
     return 0;
 }
