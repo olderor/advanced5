@@ -24,16 +24,26 @@ struct matrix_network {
     struct edge {
         // Index of the start vertex.
         int from;
+
         // Index of the end vertex.
         int to;
+
         // Amount, which is required to use the edge.
         int cost;
+
         // Current value of the flow in the edge.
         int flow;
+
         // Maximum value of the flow in the edge.
         int capacity;
+
         // Index of the edge to go back from end vertex to start vertex.
         int back;
+
+        // Initializes edge with an empty flow.
+        edge(int from, int to, int cost, int capacity, int back) :
+            from(from), to(to), cost(cost),
+            flow(0), capacity(capacity), back(back) {}
     };
 
     // Number of rows, number of columns in the matrix.
@@ -106,18 +116,8 @@ void matrix_network::add_edge(
     const int capacity,
     const int cost) {
 
-    edge *first = new edge();
-    first->from = from;
-    first->to = to;
-    first->capacity = capacity;
-    first->cost = cost;
-    first->back = edges.size() + 1;
-
-    edge *second = new edge();
-    second->from = to;
-    second->to = from;
-    second->cost = -cost;
-    second->back = edges.size();
+    edge *first = new edge(from, to, cost, capacity, edges.size() + 1);
+    edge *second = new edge(to, from, -cost, 0, edges.size());
 
     edges.push_back(first);
     edges.push_back(second);
@@ -125,7 +125,6 @@ void matrix_network::add_edge(
 }
 
 const int matrix_network::try_find_flow() {
-
     for (int i = 1; i < vertices_count; ++i) {
         distances[i] = INTEGER_INFINITY;
         parents[i] = -1;
@@ -165,7 +164,6 @@ const int matrix_network::try_find_flow() {
 }
 
 const int matrix_network::find_min_cost_max_flow() {
-
     distances.resize(vertices_count);
     parents.resize(vertices_count);
     int cost_delta = 0;
@@ -185,7 +183,6 @@ matrix_network::matrix_network(
 }
 
 void matrix_network::initialize_matrix_network() {
-
     vertices_count = 2 * matrix_size + 2;
     graph.resize(vertices_count);
     for (int i = 0; i < matrix_size; ++i) {
@@ -249,7 +246,6 @@ void solve(
 }
 
 int main() {
-
     std::vector< std::vector<int> > matrix_data;
 
     read_data(std::cin, matrix_data);
