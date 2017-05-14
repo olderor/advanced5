@@ -168,7 +168,6 @@ matrix_network::matrix_network(
 
 void matrix_network::initialize_matrix_network() {
     vertices_count = 2 * matrix_size + 2;
-    graph.clear();
     graph.resize(vertices_count);
     for (int i = 0; i < matrix_size; ++i) {
         for (int j = 0; j < matrix_size; ++j) {
