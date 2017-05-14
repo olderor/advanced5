@@ -7,7 +7,7 @@
 const int INTEGER_INFINITY = 10000000;
 
 // Solution to the problem.
-struct matrix_result {
+struct optimal_matching {
     // Minimum sum of the elements.
     int min_sum;
 
@@ -26,7 +26,7 @@ struct matrix_network {
     // and sets column indexes for each row,
     // such that the element in the matrix in given row and column was choosen.
     // Also, it will be permutation of the columns indexes.
-    const matrix_result find_min_sum();
+    const optimal_matching find_min_sum();
 
  private:
     // Representation of the edge in the graph.
@@ -103,10 +103,10 @@ void read_data(
 // Puts data to output stream.
 void print_data(
     std::ostream &_Ostr,
-    const matrix_result res);
+    const optimal_matching solution);
 
 // Gets answer to the given problem using given data.
-const matrix_result solve(
+const optimal_matching solve(
     std::vector< std::vector<int> > &matrix_data);
 
 // Entry point.
@@ -194,19 +194,19 @@ void matrix_network::initialize_matrix_network() {
     }
 }
 
-const matrix_result matrix_network::find_min_sum() {
+const optimal_matching matrix_network::find_min_sum() {
     initialize_matrix_network();
-    matrix_result res = matrix_result();
-    res.min_sum = find_min_cost_max_flow();
+    optimal_matching solution = optimal_matching();
+    solution.min_sum = find_min_cost_max_flow();
 
     for (int i = 0; i < edges.size(); ++i) {
         if (edges[i].flow > 0 && edges[i].from != 0 &&
             edges[i].to != vertices_count - 1) {
-            res.columns.push_back(edges[i].to - matrix_size);
+            solution.columns.push_back(edges[i].to - matrix_size);
         }
     }
 
-    return res;
+    return solution;
 }
 
 void read_data(
@@ -226,7 +226,7 @@ void read_data(
 
 void print_data(
     std::ostream &_Ostr,
-    const matrix_result res) {
+    const optimal_matching res) {
 
     _Ostr << res.min_sum << '\n';
     for (int i = 0; i < res.columns.size(); ++i) {
@@ -235,7 +235,7 @@ void print_data(
     _Ostr << '\n';
 }
 
-const matrix_result solve(
+const optimal_matching solve(
     std::vector< std::vector<int> > &matrix_data) {
 
     matrix_network finder = matrix_network(matrix_data);
@@ -247,9 +247,9 @@ int main() {
 
     read_data(std::cin, matrix_data);
 
-    const matrix_result res = solve(matrix_data);
+    const optimal_matching solution = solve(matrix_data);
 
-    print_data(std::cout, res);
+    print_data(std::cout, solution);
 
     return 0;
 }
