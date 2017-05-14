@@ -59,11 +59,7 @@ struct matrix_network {
     int cost;
 
     // All edges in the graph.
-    std::vector<edge*> edges;
-
-    // State of graph where each vertex contains edges
-    // that start from this vertex.
-    std::vector< std::vector<edge*> > graph;
+    std::vector<edge> edges;
 
     // Minimum sum of the costs to retrieve a vertex.
     std::vector<int> distances;
@@ -116,12 +112,11 @@ void matrix_network::add_edge(
     const int capacity,
     const int cost) {
 
-    edge *first = new edge(from, to, cost, capacity, edges.size() + 1);
-    edge *second = new edge(to, from, -cost, 0, edges.size());
+    edge first = edge(from, to, cost, capacity, edges.size() + 1);
+    edge second = edge(to, from, -cost, 0, edges.size());
 
     edges.push_back(first);
     edges.push_back(second);
-    graph[from].push_back(first);
 }
 
 const int matrix_network::try_find_flow() {
@@ -135,17 +130,17 @@ const int matrix_network::try_find_flow() {
     while (found) {
         found = false;
         for (int index = 0; index < edges.size(); ++index) {
-            if (edges[index]->flow >= edges[index]->capacity) {
+            if (edges[index].flow >= edges[index].capacity) {
                 continue;
             }
-            if (distances[edges[index]->from] == INTEGER_INFINITY) {
+            if (distances[edges[index].from] == INTEGER_INFINITY) {
                 continue;
             }
-            if (distances[edges[index]->to] >
-                distances[edges[index]->from] + edges[index]->cost) {
-                distances[edges[index]->to] =
-                    distances[edges[index]->from] + edges[index]->cost;
-                parents[edges[index]->to] = index;
+            if (distances[edges[index].to] >
+                distances[edges[index].from] + edges[index].cost) {
+                distances[edges[index].to] =
+                    distances[edges[index].from] + edges[index].cost;
+                parents[edges[index].to] = index;
                 found = true;
             }
         }
@@ -156,9 +151,9 @@ const int matrix_network::try_find_flow() {
     }
     int cur = vertices_count - 1;
     while (cur != 0) {
-        edges[parents[cur]]->flow += 1;
-        edges[edges[parents[cur]]->back]->flow -= 1;
-        cur = edges[parents[cur]]->from;
+        edges[parents[cur]].flow += 1;
+        edges[edges[parents[cur]].back].flow -= 1;
+        cur = edges[parents[cur]].from;
     }
     return distances[vertices_count - 1];
 }
@@ -184,7 +179,6 @@ matrix_network::matrix_network(
 
 void matrix_network::initialize_matrix_network() {
     vertices_count = 2 * matrix_size + 2;
-    graph.resize(vertices_count);
     for (int i = 0; i < matrix_size; ++i) {
         for (int j = 0; j < matrix_size; ++j) {
             add_edge(i + 1, matrix_size + 1 + j, 1, matrix[i][j]);
@@ -202,9 +196,9 @@ void matrix_network::find_min_sum(
     min_sum = find_min_cost_max_flow();
     columns.clear();
     for (int i = 0; i < edges.size(); ++i) {
-        if (edges[i]->flow > 0 && edges[i]->from != 0 &&
-            edges[i]->to != vertices_count - 1) {
-            columns.push_back(edges[i]->to - matrix_size);
+        if (edges[i].flow > 0 && edges[i].from != 0 &&
+            edges[i].to != vertices_count - 1) {
+            columns.push_back(edges[i].to - matrix_size);
         }
     }
 }
