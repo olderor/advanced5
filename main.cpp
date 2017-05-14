@@ -13,7 +13,7 @@ struct matrix_network {
      struct result {
          // Minimum sum of the elements.
          int min_sum;
-         
+
          // Permutation of the columns indexes.
          std::vector<int> columns;
      };
