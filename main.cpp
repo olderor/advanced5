@@ -3,26 +3,19 @@
 #include <iostream>
 #include <vector>
 
-// Finds max flow with min cost in the given graph.
-struct min_cost_max_flow_finder {
-public:
-    // Initializes with given number of vertices in the graph.
-    explicit min_cost_max_flow_finder(const int vertices_count);
-    // Adds new edge to the graph.
-    void add_edge(
-        const int from,
-        const int to,
-        const int capacity,
-        const int cost);
-    // Finds max flow of min cost in the current graph.
-    // Return the value of the min cost.
-    const int find_min_cost_max_flow();
-    // Gets vertices that have flow through them.
-    std::vector<int> get_flowing_vertices() const;
-    // Gets number of vertices in the graph.
-    const int get_vertices_count() const;
+// Solves given problem.
+struct matrix_network {
+ public:
+    // Initializes matrix with given data.
+    explicit matrix_network(std::vector< std::vector<int> > &matrix);
+    // Chooses elements in different rows and columns with minimum sum.
+    // It sets minimum sum to the given integer
+    // and sets column indexes for each row,
+    // such that the element in the matrix in given row and column was choosen.
+    // Also, it will be permutation of the columns indexes.
+    void find_min_sum(int &min_sum, std::vector<int> &columns);
 
-private:
+ private:
     // Representation of the edge in the graph.
     struct edge {
         // Index of the start vertex.
@@ -38,45 +31,39 @@ private:
         // Index of the edge to go back from end vertex to start vertex.
         int back;
     };
+    // Number of rows, number of columns in the matrix.
+    int matrix_size;
+    // Stores values in the matrix.
+    std::vector< std::vector<int> > matrix;
     // Number of vertices in the graph.
-    int verices_count;
+    int vertices_count;
     // Stores current cost value.
     int cost;
     // Represents infinity.
     const int inf = 10000000;
     // All edges in the graph.
     std::vector<edge*> edges;
-    // State of graph where each vertex contains edges that start from this vertex.
+    // State of graph where each vertex contains edges
+    // that start from this vertex.
     std::vector< std::vector<edge*> > graph;
-    // Minimum sum of the costs to retrieve a vertex. 
+    // Minimum sum of the costs to retrieve a vertex.
     std::vector<int> distances;
-    // Index of a parent vertex from which you came to the current vertex. 
+    // Index of a parent vertex from which you came to the current vertex.
     std::vector<int> parents;
+    // Initializes network by adding edges to graph.
+    void initialize_matrix_network();
+    // Adds new edge to the graph.
+    void add_edge(
+        const int from,
+        const int to,
+        const int capacity,
+        const int cost);
     // Try to find maximum flow value with minimum cost value.
     // Return delta - difference between previous and new cost value.
     const int try_find_flow();
-};
-
-// Solves given problem.
-struct matrix_min_cost_finder {
-public:
-    // Initializes matrix with given data.
-    explicit matrix_min_cost_finder(std::vector< std::vector<int> > &matrix);
-    // Chooses elements in different rows and columns with minimum sum.
-    // It sets minimum sum to the given integer and sets column indexes for each row,
-    // such that the element in the matrix in given row and column was choosen.
-    // Also, it will be permutation of the columns indexes.
-    void find_min_sum(int &min_sum, std::vector<int> &columns);
-private:
-    // Finds min cost max flow in the graph.
-    min_cost_max_flow_finder *finder;
-    // Number of rows, number of columns in the matrix. 
-    int matrix_size;
-    // Stores values in the matrix.
-    std::vector< std::vector<int> > matrix;
-
-    // Initializes finder with a graph.
-    void initialize_finder();
+    // Finds max flow of min cost in the current graph.
+    // Return the value of the min cost.
+    const int find_min_cost_max_flow();
 };
 
 // Gets data from input stream.
@@ -99,12 +86,7 @@ void solve(
 // Entry point.
 int main();
 
-min_cost_max_flow_finder::min_cost_max_flow_finder(const int vertices_count) {
-    this->verices_count = vertices_count;
-    graph.resize(verices_count);
-}
-
-void min_cost_max_flow_finder::add_edge(
+void matrix_network::add_edge(
     const int from,
     const int to,
     const int capacity,
@@ -127,8 +109,8 @@ void min_cost_max_flow_finder::add_edge(
     graph[from].push_back(first);
 }
 
-const int min_cost_max_flow_finder::try_find_flow() {
-    for (int i = 1; i < verices_count; ++i) {
+const int matrix_network::try_find_flow() {
+    for (int i = 1; i < vertices_count; ++i) {
         distances[i] = inf;
         parents[i] = -1;
     }
@@ -154,21 +136,21 @@ const int min_cost_max_flow_finder::try_find_flow() {
         }
     }
 
-    if (distances[verices_count - 1] == inf) {
+    if (distances[vertices_count - 1] == inf) {
         return 0;
     }
-    int cur = verices_count - 1;
+    int cur = vertices_count - 1;
     while (cur != 0) {
         edges[parents[cur]]->flow += 1;
         edges[edges[parents[cur]]->back]->flow -= 1;
         cur = edges[parents[cur]]->from;
     }
-    return distances[verices_count - 1];
+    return distances[vertices_count - 1];
 }
 
-const int min_cost_max_flow_finder::find_min_cost_max_flow() {
-    distances.resize(verices_count);
-    parents.resize(verices_count);
+const int matrix_network::find_min_cost_max_flow() {
+    distances.resize(vertices_count);
+    parents.resize(vertices_count);
     int cost_delta = 0;
     cost = try_find_flow();
     do {
@@ -178,50 +160,35 @@ const int min_cost_max_flow_finder::find_min_cost_max_flow() {
     return cost;
 }
 
-const int min_cost_max_flow_finder::get_vertices_count() const {
-    return verices_count;
-}
-
-std::vector<int> min_cost_max_flow_finder::get_flowing_vertices() const {
-    std::vector<int> vertices;
-    for (int i = 0; i < edges.size(); ++i) {
-        if (edges[i]->flow > 0) {
-            vertices.push_back(edges[i]->to);
-        }
-    }
-    return vertices;
-}
-
-matrix_min_cost_finder::matrix_min_cost_finder(
+matrix_network::matrix_network(
     std::vector< std::vector<int> > &matrix) {
     this->matrix_size = matrix.size();
     this->matrix = matrix;
 }
 
-void matrix_min_cost_finder::initialize_finder() {
-    const int vertices_count = 2 * matrix_size + 2;
-    finder = new min_cost_max_flow_finder(vertices_count);
+void matrix_network::initialize_matrix_network() {
+    vertices_count = 2 * matrix_size + 2;
+    graph.clear();
+    graph.resize(vertices_count);
     for (int i = 0; i < matrix_size; ++i) {
         for (int j = 0; j < matrix_size; ++j) {
-            finder->add_edge(i + 1, matrix_size + 1 + j, 1, matrix[i][j]);
+            add_edge(i + 1, matrix_size + 1 + j, 1, matrix[i][j]);
         }
-        finder->add_edge(0, i + 1, 1, 0);
-        finder->add_edge(matrix_size + 1 + i, vertices_count - 1, 1, 0);
+        add_edge(0, i + 1, 1, 0);
+        add_edge(matrix_size + 1 + i, vertices_count - 1, 1, 0);
     }
 }
 
-void matrix_min_cost_finder::find_min_sum(
+void matrix_network::find_min_sum(
     int &min_sum,
     std::vector<int> &columns) {
-    initialize_finder();
-    min_sum = finder->find_min_cost_max_flow();
-    std::vector<int> vertices =
-        finder->get_flowing_vertices();
+    initialize_matrix_network();
+    min_sum = find_min_cost_max_flow();
     columns.clear();
-    for (int i = 0; i < vertices.size(); ++i) {
-        if (vertices[i] != finder->get_vertices_count() - 1 && 
-            vertices[i] - matrix_size > 0) {
-            columns.push_back(vertices[i] - matrix_size);
+    for (int i = 0; i < edges.size(); ++i) {
+        if (edges[i]->flow > 0 && edges[i]->from != 0 &&
+            edges[i]->to != vertices_count - 1) {
+            columns.push_back(edges[i]->to - matrix_size);
         }
     }
 }
@@ -255,7 +222,7 @@ void solve(
     std::vector< std::vector<int> > &matrix_data,
     int &sum,
     std::vector<int> &columns) {
-    matrix_min_cost_finder finder = matrix_min_cost_finder(matrix_data);
+    matrix_network finder = matrix_network(matrix_data);
     finder.find_min_sum(sum, columns);
 }
 
