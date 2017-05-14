@@ -6,18 +6,18 @@
 // Represents infinity.
 const int INTEGER_INFINITY = 10000000;
 
+// Solution to the problem.
+struct matrix_result {
+    // Minimum sum of the elements.
+    int min_sum;
+
+    // Permutation of the columns indexes.
+    std::vector<int> columns;
+};
+
 // Solves given problem.
 struct matrix_network {
  public:
-     // Solution to the problem.
-     struct result {
-         // Minimum sum of the elements.
-         int min_sum;
-
-         // Permutation of the columns indexes.
-         std::vector<int> columns;
-     };
-
     // Initializes matrix with given data.
     explicit matrix_network(std::vector< std::vector<int> > &matrix);
 
@@ -26,7 +26,7 @@ struct matrix_network {
     // and sets column indexes for each row,
     // such that the element in the matrix in given row and column was choosen.
     // Also, it will be permutation of the columns indexes.
-    const result find_min_sum();
+    const matrix_result find_min_sum();
 
  private:
     // Representation of the edge in the graph.
@@ -103,10 +103,10 @@ void read_data(
 // Puts data to output stream.
 void print_data(
     std::ostream &_Ostr,
-    const matrix_network::result res);
+    const matrix_result res);
 
 // Gets answer to the given problem using given data.
-const matrix_network::result solve(
+const matrix_result solve(
     std::vector< std::vector<int> > &matrix_data);
 
 // Entry point.
@@ -194,9 +194,9 @@ void matrix_network::initialize_matrix_network() {
     }
 }
 
-const matrix_network::result matrix_network::find_min_sum() {
+const matrix_result matrix_network::find_min_sum() {
     initialize_matrix_network();
-    matrix_network::result res = matrix_network::result();
+    matrix_result res = matrix_result();
     res.min_sum = find_min_cost_max_flow();
 
     for (int i = 0; i < edges.size(); ++i) {
@@ -226,7 +226,7 @@ void read_data(
 
 void print_data(
     std::ostream &_Ostr,
-    const matrix_network::result res) {
+    const matrix_result res) {
 
     _Ostr << res.min_sum << '\n';
     for (int i = 0; i < res.columns.size(); ++i) {
@@ -235,7 +235,7 @@ void print_data(
     _Ostr << '\n';
 }
 
-const matrix_network::result solve(
+const matrix_result solve(
     std::vector< std::vector<int> > &matrix_data) {
 
     matrix_network finder = matrix_network(matrix_data);
@@ -247,7 +247,7 @@ int main() {
 
     read_data(std::cin, matrix_data);
 
-    const matrix_network::result res = solve(matrix_data);
+    const matrix_result res = solve(matrix_data);
 
     print_data(std::cout, res);
 
